@@ -1,6 +1,10 @@
+
 export default {
     // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
     ssr: false,
+    middleware: ['auth-login-redirect'],
+
+    // layout: 'default',
 
     // Target: https://go.nuxtjs.dev/config-target
     target: 'static',
@@ -24,6 +28,7 @@ export default {
     },
 
     // Global CSS: https://go.nuxtjs.dev/config-css
+    // '@/assets/css/global.css'
     css: [],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -31,6 +36,8 @@ export default {
 
     // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
+
+    pages: true,
 
     // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
     buildModules: [
@@ -44,7 +51,14 @@ export default {
         ['bootstrap-vue/nuxt', { icons: true, css: true }],
         // https://go.nuxtjs.dev/axios
         '@nuxtjs/axios',
+        '@nuxtjs/auth-next',
+        '@nuxtjs/toast',
     ],
+    toast: {
+        position: 'bottom-center',
+        duration: 3000,
+        theme: "bubble",
+    },
 
     publicRuntimeConfig: {
         axios: {
@@ -55,9 +69,42 @@ export default {
     // Axios module configuration: https://go.nuxtjs.dev/config-axios
     axios: {
         // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
+        credentials: true,
         baseURL: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:8000' : process.env.BASEURL,
     },
+    router: {
+        middleware: ['auth'], // Apply the middleware to all routes
+    },
+
+    cookie: {
+        options: {
+            maxAge: 12 * 24 * 60 * 60
+        }
+    },
+    auth: {
+        strategies: {
+          local: {
+            token: {
+              property: 'access_token',
+              required: true,
+              type: 'Bearer',
+            },
+            endpoints: {
+              login: { url: '/auth/token', method: 'post', propertyName: 'access_token' },
+              logout: { url: '/auth/logout', method: 'post'},
+              user: { url: '/auth/me', method: 'get' },
+            },
+          },
+        },
+        redirect: {
+          login: '/login',
+          logout: '/login', // Redirect to the login page after logout
+          home: '/authors',
+        }
+      },
+
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {},
+
 };

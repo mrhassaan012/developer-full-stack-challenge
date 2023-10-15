@@ -48,14 +48,17 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/create_user", status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user_request: schemas.CreateUserRequest):
-    create_user_model = User(
-        username=create_user_request.username,
-        hashed_password=get_password_hash(create_user_request.password),
-    )
-    db.add(create_user_model)
-    db.commit()
+    try:
+        create_user_model = User(
+            username=create_user_request.username,
+            hashed_password=get_password_hash(create_user_request.password),
+        )
+        db.add(create_user_model)
+        db.commit()
+    except Exception:
+        raise HTTPException(status_code=404, detail="Something went wrong")
 
     token = create_access_token(create_user_model.username, create_user_model.id, timedelta(minutes=20))
     return {"access_token": token, "token_type": "bearer"}
@@ -73,7 +76,7 @@ def authenticate_user(username: str, password: str, db):
 
 
 def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {"sub": username, "id": user_id}
+    encode = {"id": user_id, "sub": username}
     expires = datetime.utcnow() + expires_delta
 
     encode.update({"exp": expires})
@@ -87,6 +90,23 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
     if not user:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Counld not validate user")
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token = create_access_token(user.username, user.id, timedelta(days=1))
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "Bearer"}
+
+
+@router.get("/me")
+async def current_user(current_user: user_dependency, db: db_dependency):
+    user = db.query(User).filter(User.id == current_user["id"]).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "user": {"id": user.id, "username": user.username},
+    }
+
+
+@router.post("/logout")
+async def logout(current_user: user_dependency):
+    return {"message": "logged_out"}
