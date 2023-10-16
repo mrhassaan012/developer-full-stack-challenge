@@ -1,11 +1,10 @@
 version: '3'
 services:
   dc-full-stack-code-challenge-api:
-    build: 
+    build:
       context: ..
       dockerfile: Dockerfile
     volumes:
       - ..:/app
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: uvicorn main:app --reload
     network_mode: host
-        

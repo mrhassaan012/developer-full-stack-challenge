@@ -15,18 +15,20 @@ class User(Base):
 
 
 class Author(Base):
-    __tablename__ = "author"
+    __tablename__ = "authors"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+
+    books = relationship("Book", back_populates="author", cascade="all, delete-orphan")
 
 
 class Book(Base):
-    __tablename__ = "book"
+    __tablename__ = "books"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+    num_pages = Column(Integer)
+    author_id = Column(Integer, ForeignKey("authors.id"))
 
-    author_id = Column(Integer, ForeignKey("author.id"), back_populates="books")
-
-    author = relationship("Author")
+    author = relationship("Author", back_populates="books")

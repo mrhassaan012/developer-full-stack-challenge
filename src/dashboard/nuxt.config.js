@@ -73,7 +73,7 @@ export default {
         baseURL: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:8000' : process.env.BASEURL,
     },
     router: {
-        middleware: ['auth'], // Apply the middleware to all routes
+        middleware: ['auth'],
     },
 
     cookie: {

@@ -12,12 +12,13 @@ class Author(BaseModel):
 
 class AuthorWithID(Author):
     id: int
-    book_count: int | None
+    book_count: int = 0
 
 
 class Book(BaseModel):
     name: str
     author: Author
+    num_pages: int | None
 
     class Config:
         orm_mode = True
@@ -26,6 +27,7 @@ class Book(BaseModel):
 class BookUpsert(BaseModel):
     name: str | None = None
     author_id: int | None = None
+    num_pages: int
 
 
 class BookWithID(Book):

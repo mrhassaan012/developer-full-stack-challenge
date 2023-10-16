@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=schemas.AuthorWithID)
-def add_author(author: schemas.Author, db: Session = Depends(get_db)):
+def add_author(current_user: user_dependency, author: schemas.Author, db: Session = Depends(get_db)):
     db_author = Author(name=author.name)
     db.add(db_author)
     db.commit()
@@ -21,7 +21,7 @@ def add_author(author: schemas.Author, db: Session = Depends(get_db)):
 
 
 @router.delete("/{author_id}", response_model=schemas.Author)
-def delete_author(author_id: int, db: Session = Depends(get_db)):
+def delete_author(current_user: user_dependency, author_id: int, db: Session = Depends(get_db)):
     # Check if the author with the given ID exists
     db_author = db.query(Author).filter(Author.id == author_id).first()
     if db_author is None:
@@ -40,6 +40,7 @@ def get_authors(current_user: user_dependency, skip: int = 0, limit: int = 10, d
         db.query(Author, func.count(Book.id).label("book_count"))
         .outerjoin(Book)
         .group_by(Author.id)
+        .order_by(Author.id.desc())
         .offset(skip)
         .limit(limit)
     )
@@ -66,7 +67,7 @@ def get_authors(current_user: user_dependency, skip: int = 0, limit: int = 10, d
 
 
 @router.get("/{author_id}", response_model=schemas.AuthorWithID)
-def get_one_authors(author_id: int, db: Session = Depends(get_db)):
+def get_one_authors(current_user: user_dependency, author_id: int, db: Session = Depends(get_db)):
     author = db.query(Author).filter(Author.id == author_id).first()
 
     if not author:
@@ -76,7 +77,7 @@ def get_one_authors(author_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{author_id}", response_model=schemas.AuthorWithID)
-def update_author(author_id: int, author: schemas.Author, db: Session = Depends(get_db)):
+def update_author(current_user: user_dependency, author_id: int, author: schemas.Author, db: Session = Depends(get_db)):
     db_author = db.query(Author).filter(Author.id == author_id).first()
 
     if not db_author:
@@ -91,7 +92,7 @@ def update_author(author_id: int, author: schemas.Author, db: Session = Depends(
 
 
 @router.get("/search/", response_model=list[schemas.AuthorWithID])  # Assuming you have a BookWithID schema
-def search_authors(query: str, db: Session = Depends(get_db)):
+def search_authors(current_user: user_dependency, query: str, db: Session = Depends(get_db)):
     authors = (
         db.query(Author, func.count(Book.id).label("book_count"))
         .outerjoin(Book)
@@ -100,7 +101,6 @@ def search_authors(query: str, db: Session = Depends(get_db)):
         .all()
     )
 
-    # Create a list of AuthorWithID objects with book_count
     authors_with_id = [
         schemas.AuthorWithID(id=author.id, name=author.name, book_count=book_count) for author, book_count in authors
     ]

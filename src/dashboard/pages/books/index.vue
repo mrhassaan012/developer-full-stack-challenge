@@ -1,22 +1,27 @@
-<template>
+  <template>
   <div>
     <NavBar />
     <b-container>
-      <h3 class="mt-3">Authors</h3>
+      <h3 class="mt-3">Books</h3>
       <b-input-group class="my-3">
-        <b-form-input placeholder="Search authors" v-model="searchQuery" @input="searchAuthors"></b-form-input>
+        <b-form-input
+          placeholder="Search Books (can search with author's name as well)"
+          v-model="searchQuery"
+          @input="searchBooks"
+        ></b-form-input>
 
         <b-input-group-append>
-          <b-button v-b-modal.modal-add-author variant="info">Add Author</b-button>
+          <b-button v-b-modal.modal-add-book variant="info">Add Book</b-button>
 
-          <AddAuthorModal @update-table-data="updateTable" />
-          <EditAuthorModal :authorToEdit="authorToEdit" @update-table-data="updateTable" />
+          <AddBookModal @update-table-data="updateTable" />
+          <EditBookModal :bookToEdit="bookToEdit" @update-table-data="updateTable" />
         </b-input-group-append>
       </b-input-group>
+
       <div class="scrollable-container">
         <b-list-group v-if="searchQueryResults.length > 0">
-          <b-list-group-item v-for="(author, index) in searchQueryResults" :key="index"
-            >{{ author.name }} (Book Count: {{ author.book_count }})</b-list-group-item
+          <b-list-group-item v-for="(book, index) in searchQueryResults" :key="index"
+            >{{ book.name }} (Author's name: {{ book.author.name }})</b-list-group-item
           >
         </b-list-group>
       </div>
@@ -30,11 +35,11 @@
           align="center"
           aria-controls="my-table"
         ></b-pagination>
-        <b-table id="my-table" :items="items" :fields="tableFields" @row-clicked="editAuthor" hover>
-          <template #cell(book_count)="data" class="">{{ data.value ? data.value : 0 }}</template>
+        <b-table id="my-table" :items="items" :fields="tableFields" @row-clicked="editBook" hover>
+          <template #cell(author)="data" class="">{{ data.value.name }}</template>
 
           <template #cell(action)="data">
-            <b-button @click="deleteAuthor(data.item.id)" variant="danger">Delete</b-button>
+            <b-button @click="deleteBook(data.item.id)" variant="danger">Delete</b-button>
           </template>
         </b-table>
       </div>
@@ -42,16 +47,16 @@
   </div>
 </template>
 
-<script>
+  <script>
 import NavBar from '@/components/NavBar.vue';
-import AddAuthorModal from '@/components/AddAuthorModal.vue';
-import EditAuthorModal from '@/components/EditAuthorModal.vue';
+import AddBookModal from '@/components/AddBookModal.vue';
+import EditBookModal from '@/components/EditBookModal.vue';
 
 export default {
   components: {
     NavBar,
-    AddAuthorModal,
-    EditAuthorModal,
+    AddBookModal,
+    EditBookModal,
   },
 
   watch: {
@@ -70,9 +75,11 @@ export default {
           key: 'name',
         },
         {
-          key: 'book_count',
-          label: 'Books (count)',
-          thStyle: 'width: 100px',
+          key: 'author',
+        },
+        {
+          key: 'num_pages',
+          label: 'Pages',
         },
         {
           key: 'action',
@@ -90,17 +97,21 @@ export default {
       hasNextPage: false,
       hasPrevPage: false,
 
-      newAuthor: {
+      newBook: {
         name: '',
+        author_id: undefined,
       },
-      authorToEdit: {},
+      bookToEdit: {},
+
+      value: null,
+      options: [],
     };
   },
   async asyncData({ $axios }) {
     const skip = 0;
     const limit = 10;
 
-    let promise = $axios.get(`/authors/?skip=${skip}&limit=${limit}`);
+    let promise = $axios.get(`/books/?skip=${skip}&limit=${limit}`);
 
     try {
       const { data } = await promise;
@@ -121,7 +132,7 @@ export default {
       const limit = this.perPage;
 
       this.$axios
-        .get(`/authors/?skip=${skip}&limit=${limit}`)
+        .get(`/books/?skip=${skip}&limit=${limit}`)
         .then((response) => {
           const data = response.data;
           this.items = data.data;
@@ -136,10 +147,10 @@ export default {
         });
     },
 
-    searchAuthors() {
+    searchBooks() {
       if (this.searchQuery) {
         this.$axios
-          .get(`authors/search/?query=${this.searchQuery}`)
+          .get(`books/search/?query=${this.searchQuery}`)
           .then((response) => {
             this.searchQueryResults = response.data;
           })
@@ -155,29 +166,27 @@ export default {
       this.fetchData(this.currentPage);
     },
 
-    async deleteAuthor(authorId) {
+    async deleteBook(bookId) {
       try {
-        await this.$axios.delete(`/authors/${authorId}`);
-
-        // Update the table data by removing the deleted author
+        await this.$axios.delete(`/books/${bookId}`);
         this.fetchData(this.currentPage);
 
-        this.$toast.show('Author deleted successfully');
+        this.$toast.show('Book deleted successfully');
       } catch (error) {
         this.$toast.show('Something went wrong');
       }
     },
 
-    editAuthor(authorToEdit) {
-      this.authorToEdit = authorToEdit;
-      this.$bvModal.show('modal-edit-author');
+    editBook(bookToEdit) {
+      this.bookToEdit = bookToEdit;
+      this.$bvModal.show('modal-edit-book');
     },
   },
 };
 </script>
 
 
-<style>
+  <style>
 .scrollable-container {
   max-height: 180px;
   overflow-y: scroll;

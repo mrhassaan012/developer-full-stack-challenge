@@ -1,5 +1,10 @@
 <template>
-  <b-modal id="modal-add-author" size="lg" title="Add Author">
+  <b-modal id="modal-add-author" size="lg">
+    <template #modal-header>
+      <div class="d-flex justify-content-between">
+        <h5 class="mb-0">Add Author</h5>
+      </div>
+    </template>
     <form @submit.prevent="addAuthor">
       <b-form-group label="Author Name:" label-for="authorNameInput">
         <b-form-input id="authorNameInput" v-model="newAuthor.name" required></b-form-input>
@@ -8,7 +13,7 @@
     </form>
     <!-- Custom modal footer -->
     <template #modal-footer>
-      <b-button variant="danger" @click="hideModal">Cancel</b-button>
+      <b-button variant="primary" size="sm" class="float-right" @click="hideModal"> Close </b-button>
     </template>
   </b-modal>
 </template>
@@ -26,6 +31,7 @@ export default {
   methods: {
     hideModal() {
       this.$bvModal.hide('modal-add-author');
+      this.newAuthor.name = '';
     },
 
     async addAuthor() {

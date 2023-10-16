@@ -1,5 +1,10 @@
 <template>
-  <b-modal id="modal-edit-author" size="lg" title="Edit Author">
+  <b-modal id="modal-edit-author" size="lg">
+    <template #modal-header>
+      <div class="d-flex justify-content-between">
+        <h5 class="mb-0">Edit Author</h5>
+      </div>
+    </template>
     <form @submit.prevent="editAuthor">
       <b-form-group label="Author Name:" label-for="authorNameInput">
         <p>id: {{ authorToEdit.id }}</p>
@@ -9,7 +14,7 @@
     </form>
     <!-- Custom modal footer -->
     <template #modal-footer>
-      <b-button variant="danger" @click="hideModal">Cancel</b-button>
+      <b-button variant="warning" @click="hideModal">Cancel</b-button>
     </template>
   </b-modal>
 </template>
@@ -31,7 +36,6 @@ export default {
     hideModal() {
       this.$bvModal.hide('modal-edit-author');
       this.$emit('update-table-data');
-
     },
 
     async editAuthor() {

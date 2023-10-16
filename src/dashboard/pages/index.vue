@@ -1,3 +1,10 @@
-<template>
-    <p>Good luck!</p>
-</template>
+<template></template>
+
+
+<script>
+export default {
+  async asyncData({ redirect }) {
+    redirect('/authors');
+  },
+};
+</script>
