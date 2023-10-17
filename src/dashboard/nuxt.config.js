@@ -1,10 +1,8 @@
-
 export default {
     // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
     ssr: false,
     middleware: ['auth-login-redirect'],
 
-    // layout: 'default',
 
     // Target: https://go.nuxtjs.dev/config-target
     target: 'static',
@@ -28,7 +26,6 @@ export default {
     },
 
     // Global CSS: https://go.nuxtjs.dev/config-css
-    // '@/assets/css/global.css'
     css: [],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -62,7 +59,7 @@ export default {
 
     publicRuntimeConfig: {
         axios: {
-            baseURL: process.env.BASEURL || 'http://127.0.0.1:8000',
+            baseURL: process.env.BASEURL || 'http://localhost:8000',
         },
     },
 
@@ -70,7 +67,7 @@ export default {
     axios: {
         // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
         credentials: true,
-        baseURL: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:8000' : process.env.BASEURL,
+        baseURL: process.env.NODE_ENV == 'development' ? 'http://localhost:8000' : process.env.BASEURL,
     },
     router: {
         middleware: ['auth'],
@@ -103,8 +100,6 @@ export default {
         }
       },
 
-
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {},
-
 };

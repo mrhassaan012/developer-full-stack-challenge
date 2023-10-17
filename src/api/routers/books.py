@@ -68,7 +68,6 @@ def get_books(current_user: user_dependency, skip: int = 0, limit: int = 10, db:
 def get_one_book(current_user: user_dependency, book_id: int, db: Session = Depends(get_db)):
     result = db.query(Book, Author).join(Author).filter(Book.id == book_id).first()
 
-    print(result)
     if not result:
         raise HTTPException(status_code=404, detail="Book not found")
 
@@ -89,8 +88,8 @@ def update_book(current_user: user_dependency, book_id: int, book: schemas.BookU
         raise HTTPException(status_code=404, detail="Book not found")
 
     # Verify that the author exists
-    if "author_id" in book.dict():
-        verify_author_id(db, book.author_id)
+    # if "author_id" in book.dict():
+    #     verify_author_id(db, book.author_id)
 
     book_data = book.dict(exclude_unset=True)
     for key, value in book_data.items():
@@ -111,8 +110,6 @@ def search_books(current_user: user_dependency, query: str, db: Session = Depend
         .join(Book.author)
         .all()
     )
-
-    print("books-----------", books)
 
     results = []
     for book, author in books:

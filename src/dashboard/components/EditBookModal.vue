@@ -13,8 +13,9 @@
       <b-form-group label="Total Pages:" label-for="bookPagesInput">
         <b-form-input id="bookPagesInput" v-model="bookToEdit.num_pages" type="number" required></b-form-input>
       </b-form-group>
-      <p>Selected Author: {{ bookToEdit.author?.name }}</p>
-      <AuthorTreeSelect v-model="bookToEdit.author_id" :value="bookToEdit.author_id" />
+      <p>Selected Author: {{ bookToEdit.author?.name }} <b-button size="sm" @click="toggleChangeAuthor">Change Author</b-button></p>
+
+      <AuthorTreeSelect v-if="updatingAuthor" v-model="bookToEdit.author_id" :value="bookToEdit.author_id" />
 
       <b-button type="submit" variant="primary">Update Book</b-button>
     </form>
@@ -37,6 +38,7 @@ export default {
         author_id: null,
         num_pages: 0,
       },
+      updatingAuthor: false,
     };
   },
   props: {
@@ -50,7 +52,11 @@ export default {
 
     async editBook() {
       try {
-        const { data } = await this.$axios.patch(`/books/${this.bookToEdit.id}`, this.editedBook);
+        const payload = { ...this.bookToEdit };
+        if (!this.updatingAuthor) {
+          delete payload.author_id;
+        }
+        const { data } = await this.$axios.patch(`/books/${this.bookToEdit.id}`, payload);
         this.$toast.show('Updated Book');
         this.hideModal();
         this.editedBook.name = '';
@@ -59,21 +65,18 @@ export default {
         throw error;
       }
     },
+    toggleChangeAuthor(){
+      this.updatingAuthor = !this.updatingAuthor
+    }
   },
   components: { AuthorTreeSelect },
   watch: {
     bookToEdit(newVal) {
       this.editedBook = {
-        name: newVal.name || '',
-        author_id: newVal.author_id || null,
+        name: newVal.name,
+        author_id: newVal.author_id,
+        num_pages: newVal.num_pages
       };
-    },
-  },
-
-  computed: {
-    selectedOption() {
-      // Find the option with the matching ID
-      return this.options.find((option) => option.id === this.selectedOptionId) || null;
     },
   },
 };

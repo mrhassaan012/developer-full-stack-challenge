@@ -6,7 +6,6 @@ from auth import get_password_hash
 from database import Base, engine
 from models import Author, Book, User
 
-# Define your sample data
 sample_user = {"id": 1, "username": "testuser", "hashed_password": get_password_hash("testuser123")}
 
 sample_authors = [
@@ -40,7 +39,6 @@ sample_authors = [
     {"id": 28, "name": "Friedrich Nietzsche"},
     {"id": 29, "name": "Jane Goodall"},
     {"id": 30, "name": "Oscar Wilde"},
-    # Add more authors as needed with their corresponding IDs
 ]
 
 
@@ -75,23 +73,18 @@ sample_books = [
 ]
 
 
-# Create a session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 db = SessionLocal()
 
 
-# Seed the database with sample data
 def seed_data():
-    # Create the user
     user = User(**sample_user)
     db.add(user)
 
-    # Create the authors
     for author_data in sample_authors:
         author = Author(**author_data)
         db.add(author)
 
-    # Create the books
     for book_data in sample_books:
         num_pages = random.randint(500, 1000)
         book = Book(**book_data, num_pages=num_pages)

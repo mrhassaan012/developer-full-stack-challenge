@@ -19,7 +19,7 @@ export default {
             await this.$auth.loginWith('local', {data: formData, headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
             this.$router.push("/authors")
         }catch(error) {
-            console.log("errors", error)
+            this.$toast.error("Unable to login!")
         }
     }
   }
