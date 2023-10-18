@@ -16,7 +16,7 @@ Install the `Remote - Containers` extension for VS Code. This extension allows y
 7. `Port forwarding [some port] > [some port] > [some port] stderr: Connection established` is the indication that container is running. Run Frontend at [http://localhost:3000](http://localhost:3000)
 
 ### Run Project
-Visit [http://localhost:3000](http://localhost:3000)
+Visit [http://localhost:3000](http://localhost:3000) (if not accessible go to ports tab in integrated terminal and add port 8000 for api and 3000 for dashboard)
 If you are not authenticated, you will be redirected to `/login`.
 Login credentials:
 - Username: `testuser`
